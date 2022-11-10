@@ -1,6 +1,8 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 // import { Image, Scroll, ScrollControls, useScroll } from "@react-three/drei";
+import { config, useSpring, animated } from "@react-spring/three";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import "./App.css";
 
 // function Images() {
@@ -37,31 +39,49 @@ import "./App.css";
 //   );
 // }
 
-const Box = ({ props }) => {
+const Box = (props) => {
   const ref = useRef();
+  const [clicked, setClicked] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
-  useFrame(() => (ref.current.rotation.y += 0.01));
+  useFrame(() => (ref.current.rotation.x += 0.01));
+
+  const { scale } = useSpring({
+    scale: clicked ? 2 : 1,
+    config: config.wobbly,
+  });
 
   return (
-    <mesh ref={ref}>
-      <boxGeometry args={[2, 2, 2]} />
-      <meshStandardMaterial color={"hotpink"} />
-    </mesh>
+    <animated.mesh
+      {...props}
+      ref={ref}
+      onClick={() => setClicked(!clicked)}
+      scale={scale}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
+    >
+      <boxGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
+    </animated.mesh>
   );
 };
 
 function App() {
   return (
-    <div id="canvas-container">
-      <Canvas>
-        <mesh>
-          <Box />
-          <ambientLight intensity={0.5} />
+    <>
+      <div id="canvas-container">
+        <Canvas>
+          <Box position={[-1.6, 0, 0]} />
+          <Box position={[1.6, 0, 0]} />
+
+          {/* <ambientLight intensity={0.5} /> */}
           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
           <pointLight position={[-10, -10, -10]} />
-        </mesh>
-      </Canvas>
-    </div>
+        </Canvas>
+      </div>
+      <h1>PlayingwithGeometry</h1>
+      <a>確認</a>
+    </>
     // <Canvas>
     //   <ScrollControls pages={2} damping={3} horizontal={false}>
     //     <Scroll>
